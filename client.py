@@ -11,21 +11,24 @@ parser = argparse.ArgumentParser()
 parser.add_argument('server', type=str, help='服务端地址')
 parser.add_argument('user', type=str, help='用户名')
 parser.add_argument('passwd', type=str, help='密码')
-parser.add_argument('--saveExt', type=str, help='保存文件的扩展名, 默认.txt', default='.txt')
-parser.add_argument('--rmPrintFile', type=bool, help='是否在打印完后删除对应文件', default=False)
+parser.add_argument('--saveDir', type=str, help='保存文件的目录, 默认./PrintFiles', default='./PrintFiles')
+parser.add_argument('--saveExt', type=str, help='保存文件的扩展名, 默认txt', default='.txt')
 args = parser.parse_args()
 
 SERVER_URL = args.server
 USERNAME = args.user
 PASSWORD = args.passwd
-SAVE_EXT = args.saveExt
-RM_PRINT = args.rmPrintFile
+SAVE_DIR = os.path.abspath(args.saveDir)
+SAVE_EXT = '.' + args.saveExt
 
 
 # 获取文件的 URL
 SERVER_GET_FILE_URL = f"{SERVER_URL}/api/print"
 # 标记文件的 URL, 最后拼接 SERVER_GET_FILE_URL + nonce
 SERVER_MARK_FILE_URL = f"{SERVER_URL}/api/print/"
+
+if not os.path.isdir(SAVE_DIR):
+    os.makedirs(SAVE_DIR)
 
 while True:
     try:
@@ -43,7 +46,7 @@ while True:
             info = b64decode(file_data["info"])
             data = b64decode(file_data["data"])
 
-            filename = nonce + SAVE_EXT
+            filename = os.path.join(SAVE_DIR, nonce + SAVE_EXT)
 
             with open(filename, "wb") as f:
                 f.write(info + data)
@@ -55,8 +58,6 @@ while True:
                 print(f"打印文件 {filename}")
                 # 在此处添加调用系统打印机的代码
                 os.startfile(filename, "print")
-                if RM_PRINT:
-                    os.remove(filename)
             else:
                 print(f"确认文件 {nonce} 失败!")
                 os.remove(filename)

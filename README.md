@@ -14,16 +14,21 @@ dom-printer
 ```
 ## CLI用法
 ```
-usage: client.py [-h] [--saveExt SAVEEXT] [--rmPrintFile RMPRINTFILE] server user passwd
+usage: client.py [-h] [--saveDir SAVEDIR] [--saveExt SAVEEXT] server user passwd
 
 positional arguments:
-  server                服务端地址
-  user                  用户名
-  passwd                密码
+  server             服务端地址
+  user               用户名
+  passwd             密码
 
 optional arguments:
-  -h, --help            show this help message and exit
-  --saveExt SAVEEXT     保存文件的扩展名, 默认.txt
-  --rmPrintFile RMPRINTFILE
-                        是否在打印完后删除对应文件, 默认 false
+  -h, --help         show this help message and exit
+  --saveDir SAVEDIR  保存文件的目录, 默认./PrintFiles
+  --saveExt SAVEEXT  保存文件的扩展名, 默认txt
+
+```
+### 示例
+使用 BaseAuth 账户 `admin` 密码 `1234` 请求服务端(`http://127.0.0.1:5000`)并保存文件至`print`目录下, 扩展名为 `pdf`
+```shell
+python client.py --saveDir ./print --saveExt pdf http://127.0.0.1:5000 admin 1234
 ```

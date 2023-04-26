@@ -3,8 +3,9 @@
 
 import os
 import re
-import shutil
 import time
+import shutil
+import threading
 from base64 import b64encode
 
 from flask import Flask, jsonify
@@ -16,6 +17,7 @@ NEW_DIR = os.path.join(BASE_DIR, "new")
 OLD_DIR = os.path.join(BASE_DIR, "old")
 
 processed = {}
+lock = threading.Lock()
 
 nonce_pattern = re.compile(r"[0-9a-zA-Z-]+")
 
@@ -34,8 +36,8 @@ def get_file():
                     info = b64encode(f.read()).decode("utf-8")
                 with open(dat_file, "rb") as f:
                     data = b64encode(f.read()).decode("utf-8")
-
-                processed[nonce] = time.time()
+                with lock:
+                    processed[nonce] = time.time()
 
                 return jsonify({"id": nonce, "info": info, "data": data})
 
@@ -50,8 +52,8 @@ def delete_file(nonce):
 
         shutil.move(txt_file, os.path.join(OLD_DIR, f"{nonce}.txt"))
         shutil.move(dat_file, os.path.join(OLD_DIR, f"{nonce}.dat"))
-
-        del processed[nonce]
+        with lock:
+            del processed[nonce]
 
         return jsonify({"result": "success"})
 
@@ -64,8 +66,11 @@ def clean_processed():
         now = time.time()
         for key in list(processed.keys()):
             if now - processed[key] > 30:
-                del processed[key]
+                with lock:
+                    del processed[key]
 
 
 if __name__ == "__main__":
+    clear = threading.Thread(target=clean_processed, daemon=True)
+    clear.start()
     app.run()
