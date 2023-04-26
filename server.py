@@ -73,4 +73,4 @@ def clean_processed():
 if __name__ == "__main__":
     clear = threading.Thread(target=clean_processed, daemon=True)
     clear.start()
-    app.run()
+    app.run(host='0.0.0.0', port=5000)
