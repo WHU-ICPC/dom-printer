@@ -12,7 +12,7 @@ from flask import Flask, jsonify
 
 app = Flask(__name__)
 
-BASE_DIR = os.environ.get("PRINT_BASE_DIR", "{basedir}")
+BASE_DIR = os.environ.get("PRINT_BASE_DIR", "simulation\server")
 NEW_DIR = os.path.join(BASE_DIR, "new")
 OLD_DIR = os.path.join(BASE_DIR, "old")
 
